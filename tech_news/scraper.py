@@ -26,7 +26,10 @@ def scrape_novidades(html_content):
 
 # Requisito 3
 def scrape_next_page_link(html_content):
-    """Seu código deve vir aqui"""
+    html_selector = Selector(text=html_content)
+    css_selector = ".nav-links .next::attr(href)"
+    next_link = html_selector.css(css_selector).get()
+    return next_link
 
 
 # Requisito 4
@@ -41,4 +44,4 @@ def get_tech_news(amount):
 
 # if __name__ == "__main__":
 #     response = fetch("https://blog.betrybe.com/")
-#     print(scrape_novidades(response))
+#     print(scrape_next_page_link(response))
