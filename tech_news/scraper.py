@@ -1,10 +1,11 @@
 import time
+from typing import List
 import requests
 from parsel import Selector
 from tech_news.helpers.format_scrape_noticia import (
     format_comments_count,
-    format_summary
-)
+    format_summary)
+from tech_news.database import create_news
 
 
 # Requisito 1
@@ -21,7 +22,7 @@ def fetch(url):
 
 
 # Requisito 2
-def scrape_novidades(html_content):
+def scrape_novidades(html_content) -> List[str]:
     html_selector = Selector(text=html_content)
     css_selector = ".entry-title a::attr(href)"
     news_links = html_selector.css(css_selector).getall()
@@ -62,12 +63,40 @@ def scrape_noticia(html_content):
     return noticia
 
 
+# Funções Auxiliares do Requisito 5
+def search_news(amount, news, response):
+    while amount > len(news):
+        url = scrape_next_page_link(response)
+        response = fetch(url)
+        news.extend(scrape_novidades(response))
+    return news
+
+
+def catch_data_news(news):
+    data_news = []
+    for new in news:
+        response = fetch(new)
+        data_new = scrape_noticia(response)
+        data_news.append(data_new)
+    return data_news
+
+
 # Requisito 5
 def get_tech_news(amount):
-    """Seu código deve vir aqui"""
+    url = "https://blog.betrybe.com/"
+    response = fetch(url)
+    news = scrape_novidades(response)
+
+    news = search_news(amount, news, response)
+    if amount < len(news):
+        news = news[:amount]
+
+    data_news = catch_data_news(news)
+    create_news(data_news)
+    return data_news
 
 
-# if __name__ == "__main__":
-#     url = "https://blog.betrybe.com/carreira/gatilho-mental-tudo-sobre/&#39;"
-#     response = fetch(url)
-#     print(scrape_noticia(response))
+if __name__ == "__main__":
+    url = "https://blog.betrybe.com/"
+    response = fetch(url)
+    print(get_tech_news(1))
