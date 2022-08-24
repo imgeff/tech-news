@@ -1,7 +1,7 @@
 from typing import List
 
 
-def format_comments_count(comments_count: str | None):
+def format_comments_count(comments_count: str):
     if type(comments_count) == str:
         comments_count_no_spaces: str = comments_count.strip()[0]
         number_of_comments: int = int(comments_count_no_spaces)
